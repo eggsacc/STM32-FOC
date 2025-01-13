@@ -1,0 +1,4 @@
+1) In foc.c->MotorInit(): zero angle initialized using attached as5600 sensor.
+   Implement as5600 object attached to each motor instance (unique I2C handler address)
+   Check sensor connected and store zero startup angle.
+
