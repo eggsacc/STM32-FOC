@@ -49,7 +49,7 @@
   */
 
 /* USER CODE BEGIN PRIVATE_TYPES */
-
+extern uint8_t usb_rx_buffer[32];
 /* USER CODE END PRIVATE_TYPES */
 
 /**
@@ -259,10 +259,16 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-  return (USBD_OK);
-  /* USER CODE END 6 */
+	CDC_Transmit_FS("received!", 10);
+	memset (usb_rx_buffer, '\0', 32);  // clear the buffer
+	uint8_t len = (uint8_t)*Len;
+	memcpy(usb_rx_buffer, Buf, len);  // copy the data to the buffer
+	memset(Buf, '\0', len);
+    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+    USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+    // clear the Buf also
+    return (USBD_OK);
+    /* USER CODE END 6 */
 }
 
 /**

@@ -30,32 +30,35 @@ typedef struct
 	float shaft_angle;
 	float electric_angle;
 	uint8_t pole_pairs;
-}FOCparams;
+} FOCparams;
 
 typedef struct
 {
 	float Uq;
 	float Ud;
-}QDvalues;
+} QDvalues;
 
 typedef struct
 {
 	float Ua;
 	float Ub;
 	float Uc;
-}PhaseVoltages;
+} PhaseVoltages;
 
 typedef struct
 {
 	FOCparams* params;
 	QDvalues* qdVals;
 	PhaseVoltages* phaseVs;
-}Motor;
+	AS5600* sensor;
+} Motor;
 
 /*
  * Public functions
  */
-void MotorInit(Motor* motor, FOCparams* params, QDvalues* qdVals, PhaseVoltages* phaseVs);
+void MotorInit(Motor* motor, uint8_t pole_pairs, float supply_voltage);
+
+void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle);
 
 
 #endif /* INC_FOC_H_ */
