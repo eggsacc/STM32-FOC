@@ -2,9 +2,14 @@
    Implement as5600 object attached to each motor instance (unique I2C handler address)
    Check sensor connected and store zero startup angle.
 
-2) USB rx/tx, rx is in usbd_cdc_if.h -> CDC_Receive_FS. Callback function, only executed when USB data in.
+2) HAL_GetTick() returns number of ticks since last reboot/startup, with each tick being 1ms.
 
-PINOUT
+3) Since timer ticks are unsigned int, there is no need to handle overflow since now - prev if now has overflowed will automatically correct.
+
+4) Timer utils requires DWT_Init() to be called in main.
+
+
+**************** PINOUT ********************
 
 A8    TIM1_CH1
 A9    TIM1_CH2
@@ -15,3 +20,6 @@ B11   SDA_0
 
 B6    SCL_1
 B7    SDA_1
+
+************ PWM frequency: ****************
+72MHz / 1024 = 70.3kHz (approx)

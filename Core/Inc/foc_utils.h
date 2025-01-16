@@ -40,6 +40,10 @@
  */
 float _sin(float angle);
 float _cos(float angle);
+
+/*
+ * Utility functions
+ */
 float _normalizeAngle(float angle);
 float _electricalAngle(float angle, uint8_t pole_pairs);
 

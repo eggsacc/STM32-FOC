@@ -110,9 +110,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint8_t* usb_buffer = "PAY GORN!!\n";
+	  uint8_t usb_buffer[32];
+	  sprintf(usb_buffer, "GetTick: %u\n", HAL_GetTick());
+
 	  CDC_Transmit_FS(usb_buffer, strlen((const char*)usb_buffer));
-	  HAL_Delay (1000);
+	  HAL_Delay (100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

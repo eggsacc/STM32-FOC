@@ -26,9 +26,11 @@
 typedef struct
 {
 	float supply_voltage;
+	float motor_voltage_limit;
 	float zero_angle;
 	float shaft_angle;
 	float electric_angle;
+	uint32_t prev_us;
 	uint8_t pole_pairs;
 } FOCparams;
 
