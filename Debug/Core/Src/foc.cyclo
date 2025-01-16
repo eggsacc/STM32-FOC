@@ -1,0 +1,7 @@
+../Core/Inc/timer_utils.h:34:26:micros	1
+../Core/Src/foc.c:23:13:SetPWM	7
+../Core/Src/foc.c:35:13:SetPhaseVoltage	1
+../Core/Src/foc.c:58:6:MotorInit	1
+../Core/Src/foc.c:83:6:LinkSensor	2
+../Core/Src/foc.c:96:6:DebugSensor	1
+../Core/Src/foc.c:101:6:VelocityControl	2
