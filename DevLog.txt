@@ -8,6 +8,8 @@
 
 4) Timer utils requires DWT_Init() to be called in main.
 
+5) Added open loop velocity control. Function generates and updates the motor->params->el_angle param in each iteration based on the time elapsed and desired velocity.
+
 
 **************** PINOUT ********************
 
