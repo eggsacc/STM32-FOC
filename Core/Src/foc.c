@@ -38,8 +38,8 @@ static void SetPhaseVoltage(Motor* motor) {
     float el_angle = _normalizeAngle(motor->params->electric_angle);
 
 	/* Inverse park transform */
-	float Ualpha = -(motor->qdVals->Uq) * _sin(el_angle);
-	float Ubeta = motor->qdVals->Uq * _cos(el_angle);
+	float Ualpha = -(motor->dqVals->Uq) * _sin(el_angle);
+	float Ubeta = motor->dqVals->Uq * _cos(el_angle);
 
 	/* Inverse Clarke transform */
 	motor->phaseVs->Ua = Ualpha + motor->params->supply_voltage / 2;
@@ -54,6 +54,7 @@ static void SetPhaseVoltage(Motor* motor) {
  * @params[in] Motor* motor
  * @params[in] uint8_t pole_pairs
  * @params[in] float supply_voltage
+ * @note Motor voltage limit defaults to supply voltage / 2.
  */
 void MotorInit(Motor* motor, uint8_t pole_pairs, float supply_voltage)
 {
@@ -62,17 +63,10 @@ void MotorInit(Motor* motor, uint8_t pole_pairs, float supply_voltage)
 	motor->params->supply_voltage = supply_voltage;
 	motor->params->motor_voltage_limit = supply_voltage / 2;
 
-	/* Initialize all values to 0 */
-	motor->params->shaft_angle = 0;
-	motor->params->zero_angle = 0;
-	motor->params->prev_us = 0;
-
-	motor->phaseVs->Ua = 0;
-	motor->phaseVs->Ub = 0;
-	motor->phaseVs->Uc = 0;
-
-	motor->qdVals->Ud = 0;
-	motor->qdVals->Uq = 0;
+	if(motor->sensor != NULL)
+	{
+		motor->sensor = NULL;
+	}
 }
 
 /*
@@ -94,6 +88,10 @@ void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle)
 	motor->sensor = sensor;
 }
 
+/*
+ * @brief Sends sensor readings through USB. For debugging sensors.
+ * @param[in] Motor* motor
+ */
 void DebugSensor(Motor* motor)
 {
 	return;
@@ -107,15 +105,18 @@ void DebugSensor(Motor* motor)
  */
 void OLVelocityControl(Motor* motor, float target_velocity)
 {
+	/* Track current micros */
 	uint32_t now_us = micros();
 
+	/* Time difference since last call */
 	float time_elapsed_s = (now_us - motor->params->prev_us) / 1000000;
-
 	time_elapsed_s = time_elapsed_s > 0.5 ? 0.001 : time_elapsed_s;
 
+	/* Update virtual shaft angle, and calculate phase voltages */
 	motor->params->shaft_angle = _normalizeAngle(motor->params->shaft_angle + target_velocity * time_elapsed_s);
-	motor->qdVals->Uq = motor->params->motor_voltage_limit;
+	motor->dqVals->Uq = motor->params->motor_voltage_limit;
 	SetPhaseVoltage(motor);
 
+	/* Update timestamp */
 	motor->params->prev_us = micros();
 }

@@ -10,6 +10,7 @@
 
 5) Added open loop velocity control. Function generates and updates the motor->params->el_angle param in each iteration based on the time elapsed and desired velocity.
 
+Continue: attach sensor macro
 
 **************** PINOUT ********************
 
