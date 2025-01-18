@@ -10,7 +10,11 @@
 
 5) Added open loop velocity control. Function generates and updates the motor->params->el_angle param in each iteration based on the time elapsed and desired velocity.
 
+6) Timer struct (htimx) added to Motor struct
+
 Continue: attach sensor macro
+
+CHECK: URGENT FIX: SetPWM() should set the duty cycle of appropriate timer, not just timer 1
 
 **************** PINOUT ********************
 
@@ -18,11 +22,17 @@ A8    TIM1_CH1
 A9    TIM1_CH2
 A10   TIM1_CH3
 
+A6    TIM3_CH1
+A7    TIM3_CH2
+B0    TIM3_CH3
+
 B10   SCL_0
 B11   SDA_0
 
 B6    SCL_1
 B7    SDA_1
+
+C13   GPIO_OUT
 
 ************ PWM frequency: ****************
 72MHz / 1024 = 70.3kHz (approx)

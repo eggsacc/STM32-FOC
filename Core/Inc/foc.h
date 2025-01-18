@@ -14,21 +14,23 @@
 #include "foc_utils.h"
 #include "AS5600.h"
 #include "stm32f1xx_hal.h"
+#include "stm32f1xx_hal_tim.h"
+#include "stm32f103xb.h"
 
 /*
  * Macro to setup a motor.
- * Sets up all structures on the stack, only leaving Motor->AS5600* sensor as NULL.
+ * Sets up all structures on the stack, only leaving Motor->AS5600* sensor & timer as NULL.
  * Default to 12V for supply voltage, 6V voltage limit & 6 pole pairs
  * All other struct values are initialized to 0
  * Sensor will have to be attached manually using LinkSensor(); the default is open-loop control.
  */
-#define MotorSetup(m)                                              \
-	do {                                                           \
-		FOCparams m##_params = {12, 6, 0, 0, 0, 0, 6};             \
-		DQvalues m##_dq = {0, 0};                                  \
-		PhaseVoltages m##_pv = {0, 0, 0};                          \
-		Motor m##_struct = {&m##_params, &m##_dq, &m##_pv, NULL};  \
-	} while(0)                                                     \
+#define MotorSetup(motor)                                                                \
+	do {                                                                                 \
+		FOCparams motor##_params = {12, 6, 0, 0, 0, 0, 6};                               \
+		DQvalues motor##_dq = {0, 0};                                                    \
+		PhaseVoltages motor##_pv = {0, 0, 0};                                            \
+		Motor motor##_struct = {&motor##_params, &motor##_dq, &motor##_pv, NULL, NULL};  \
+	} while(0)                                                                           \
 
 #define AttachSensor(motor)                                   \
 	AS5600
@@ -40,6 +42,7 @@
  * around to update / use the stored values.
  *
  * The Motor structure contains pointers to all 3 other structures: FOCparams, QDvalues, and PhaseVoltages.
+ * Also includes pointers to the sensor struct and timer typedef struct.
  */
 typedef struct
 {
@@ -71,6 +74,7 @@ typedef struct
 	DQvalues* dqVals;
 	PhaseVoltages* phaseVs;
 	AS5600* sensor;
+	TIM_HandleTypeDef timer;
 } Motor;
 
 /*

@@ -9,6 +9,8 @@
  * Includes
  */
 #include <stm32f1xx_hal.h>
+#include "stm32f1xx_hal_tim.h"
+#include "stm32f103xb.h"
 #include "foc_utils.h"
 #include "foc.h"
 #include "AS5600.h"
@@ -16,15 +18,14 @@
 
 /*
  * @scope static
- * @brief Set pwm signal of channels
- * @param[in] Controller control
+ * @brief Set pwm duty cycle of timer channels
  * @param[in] Motor* motor
  */
 static void SetPWM(Motor* motor)
 {
-	TIM1->CCR1 = _constrain(motor->phaseVs->Ua / motor->params->supply_voltage, 0.0f, 1.0f) * TIM1->ARR;
-	TIM1->CCR2 = _constrain(motor->phaseVs->Ub / motor->params->supply_voltage, 0.0f, 1.0f) * TIM1->ARR;
-	TIM1->CCR3 = _constrain(motor->phaseVs->Uc / motor->params->supply_voltage, 0.0f, 1.0f) * TIM1->ARR;
+	motor->timer->Instance->CCR1 = _constrain(motor->phaseVs->Ua / motor->params->supply_voltage, 0.0f, 1.0f) * motor->timer->Instance->ARR;
+	motor->timer->Instance->CCR2 = _constrain(motor->phaseVs->Ub / motor->params->supply_voltage, 0.0f, 1.0f) * motor->timer->Instance->ARR;
+	motor->timer->Instance->CCR3 = _constrain(motor->phaseVs->Uc / motor->params->supply_voltage, 0.0f, 1.0f) * motor->timer->Instance->ARR;
 }
 
 /*
@@ -56,12 +57,13 @@ static void SetPhaseVoltage(Motor* motor) {
  * @params[in] float supply_voltage
  * @note Motor voltage limit defaults to supply voltage / 2.
  */
-void MotorInit(Motor* motor, uint8_t pole_pairs, float supply_voltage)
+void MotorInit(Motor* motor, TIM_HandleTypeDef timer, uint8_t pole_pairs, float supply_voltage)
 {
 	/* Set pole pairs & supply voltage */
 	motor->params->pole_pairs = pole_pairs;
 	motor->params->supply_voltage = supply_voltage;
 	motor->params->motor_voltage_limit = supply_voltage / 2;
+	motor->timer = timer;
 
 	if(motor->sensor != NULL)
 	{

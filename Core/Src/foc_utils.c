@@ -57,7 +57,7 @@ float _sin(float angle){
  * @param[in] angle(radians)
  * @return cos(angle)
  */
-float _cos(float angle) {
+__STATIC_INLINE float _cos(float angle) {
   float _angle = angle + _PI_2;
   _angle = _angle > _2PI ? _angle - _2PI : _angle;
   return _sin(_angle);
@@ -69,7 +69,7 @@ float _cos(float angle) {
  * @param[in] pole_pairs
  * @return electrical angle
  */
-float _electricalAngle(float shaft_angle, uint8_t pole_pairs){
+__STATIC_INLINE float _electricalAngle(float shaft_angle, uint8_t pole_pairs){
   return (shaft_angle * pole_pairs);
 }
 
@@ -78,7 +78,7 @@ float _electricalAngle(float shaft_angle, uint8_t pole_pairs){
  * @param[in] angle(radians)
  * @return normalized_angle
  */
-float _normalizeAngle(float angle){
+__STATIC_INLINE float _normalizeAngle(float angle){
   float a = fmod(angle, _2PI);       // fmod(x,y) returns remainder of x/y
   return a >= 0 ? a : (a + _2PI);    // add 2pi to negative angles to make positive
 }
