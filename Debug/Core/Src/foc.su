@@ -1,7 +1,0 @@
-../Core/Inc/timer_utils.h:34:26:micros	4	static
-../Core/Src/foc.c:23:13:SetPWM	24	static
-../Core/Src/foc.c:35:13:SetPhaseVoltage	40	static
-../Core/Src/foc.c:58:6:MotorInit	32	static
-../Core/Src/foc.c:83:6:LinkSensor	32	static
-../Core/Src/foc.c:96:6:DebugSensor	16	static
-../Core/Src/foc.c:101:6:VelocityControl	32	static

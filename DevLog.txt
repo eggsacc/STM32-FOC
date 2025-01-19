@@ -15,6 +15,7 @@
 Continue: attach sensor macro
 
 CHECK: URGENT FIX: SetPWM() should set the duty cycle of appropriate timer, not just timer 1
+FIX: SetPWM configuration error: handleTypeDef no instance
 
 **************** PINOUT ********************
 

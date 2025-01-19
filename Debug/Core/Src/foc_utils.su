@@ -1,4 +1,0 @@
-../Core/Src/foc_utils.c:28:7:_sin	32	static
-../Core/Src/foc_utils.c:60:7:_cos	24	static
-../Core/Src/foc_utils.c:72:7:_electricalAngle	16	static
-../Core/Src/foc_utils.c:81:7:_normalizeAngle	24	static

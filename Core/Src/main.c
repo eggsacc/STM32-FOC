@@ -67,7 +67,6 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-//uint8_t usb_buffer[32];
 uint8_t usb_rx_buffer[32];
 /* USER CODE END 0 */
 
@@ -105,7 +104,15 @@ int main(void)
   MX_I2C2_Init();
   MX_USB_DEVICE_Init();
   MX_TIM3_Init();
+
   /* USER CODE BEGIN 2 */
+
+  PWMstart(&htim1);
+  MotorSetup(m1);
+  MotorInit(&m1, &htim1, 14, 12);
+  AttachSensor(&m1, &hi2c1);
+
+  uint8_t usb_tx_buffer[32];
 
   /* USER CODE END 2 */
 
@@ -113,11 +120,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint8_t usb_buffer[32];
-	  sprintf(usb_buffer, "GetTick: %u\n", HAL_GetTick());
+	  /* Set open loop velocity */
+	  OLVelocityControl(&m1, 3);
+	  /* Output phase voltages to USB serial bus (for debugging) */
+	  sprintf(usb_tx_buffer, "phaseA: %d, phaseB: %d, phaseC: %d\n",
+	  			  m1->phaseVs->Ua * 100,
+	  			  m1->phaseVs->Ub * 100,
+	  			  m1->phaseVs->Uc * 100);
 
-	  CDC_Transmit_FS(usb_buffer, strlen((const char*)usb_buffer));
-	  HAL_Delay (100);
+	  CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
