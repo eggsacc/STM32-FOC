@@ -1,0 +1,10 @@
+../Core/Inc/foc_utils.h:49:23:_cos	24	static
+../Core/Inc/foc_utils.h:60:23:_normalizeAngle	24	static
+../Core/Inc/timer_utils.h:34:26:micros	4	static
+../Core/Src/foc.c:24:13:SetPWM	24	static
+../Core/Src/foc.c:36:13:SetPhaseVoltage	40	static
+../Core/Src/foc.c:57:6:PWM_Start_3_Channel	16	static
+../Core/Src/foc.c:78:7:MotorInit	56	static
+../Core/Src/foc.c:101:6:LinkSensor	32	static
+../Core/Src/foc.c:119:6:DebugSensor	16	static
+../Core/Src/foc.c:130:6:OLVelocityControl	32	static

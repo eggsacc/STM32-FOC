@@ -11,11 +11,31 @@
 5) Added open loop velocity control. Function generates and updates the motor->params->el_angle param in each iteration based on the time elapsed and desired velocity.
 
 6) Timer struct (htimx) added to Motor struct
+   - NOTE: When accessing a member directly from a struct variable, use the dot (.) operator. Only use arrow (->) when accessing from struct pointer.
+   - BUGFIX: motor->TIM_HandleTypeDef->Instance->CCR1 dosnt work. Must be TIM_HandleTypeDef.Instance->CCR1
+   
 
 Continue: attach sensor macro
 
-CHECK: URGENT FIX: SetPWM() should set the duty cycle of appropriate timer, not just timer 1
-FIX: SetPWM configuration error: handleTypeDef no instance
+
+################################## UPDATES ##################################
+20/1/25:
+- Removed macros to set up motor structs; replaced with a function using static structs.
+- Motor & sensor object has to be manually created now, in main().
+
+################################## BUGFIX & THINGS LEARNT ##################################
+20/1/25: 
+- Remember to change header file funcion definitions after updating source file.
+
+- When accessing a member directly from a struct variable, use the dot (.) operator. Only use arrow (->) when accessing from struct pointer.
+
+- Motor struct timer updated to TIM_HandleTypeDef* pointer 
+
+- Static inline functions defined in the source file are only accessible from within the file.
+  Similarly, such functions should be fully defined in the header file (.h) as the compiler does not search for it's definition elsewhere.
+  Hence, only small, short functions should be inlined.
+  
+- Static variables & structs could be created in functions and referenced even after function exit since they persist for the lifetime of the program.
 
 **************** PINOUT ********************
 

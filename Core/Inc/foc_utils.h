@@ -1,4 +1,4 @@
-/*
+	/*
  * foc_utils.h
  *
  *  Created on: Jan 12, 2025
@@ -12,6 +12,7 @@
  * Includes
  */
 #include "stm32f1xx_hal.h"
+#include <math.h>
 
 /*
  * Constants definition
@@ -39,13 +40,37 @@
  * Trig approximation functions using look-up table
  */
 float _sin(float angle);
-float _cos(float angle);
 
 /*
- * Utility functions
+ * @brief Cosine approximation
+ * @param[in] angle(radians)
+ * @return cos(angle)
  */
-float _normalizeAngle(float angle);
-float _electricalAngle(float angle, uint8_t pole_pairs);
+__STATIC_INLINE float _cos(float angle) {
+  float _angle = angle + _PI_2;
+  _angle = _angle > _2PI ? _angle - _2PI : _angle;
+  return _sin(_angle);
+}
+
+/*
+ * @brief Normalize angle to [0, 2pi]
+ * @param[in] angle(radians)
+ * @return normalized_angle
+ */
+__STATIC_INLINE float _normalizeAngle(float angle){
+  float a = fmod(angle, _2PI);       // fmod(x,y) returns remainder of x/y
+  return a >= 0 ? a : (a + _2PI);    // add 2pi to negative angles to make positive
+}
+
+/*
+ * @brief Calculates electrical angle from rotor angle
+ * @param[in] shaft_angle(radians)
+ * @param[in] pole_pairs
+ * @return electrical angle
+ */
+__STATIC_INLINE float _electricalAngle(float shaft_angle, uint8_t pole_pairs){
+  return (shaft_angle * pole_pairs);
+}
 
 /*
  * Sine loop-up table: 16-bit depth, 8-bit resolution

@@ -51,34 +51,3 @@ float _sin(float angle){
 
   return (first + (((second - first) * frac) >> 8)) / 32768.0f;
 }
-
-/*
- * @brief Cosine approximation
- * @param[in] angle(radians)
- * @return cos(angle)
- */
-__STATIC_INLINE float _cos(float angle) {
-  float _angle = angle + _PI_2;
-  _angle = _angle > _2PI ? _angle - _2PI : _angle;
-  return _sin(_angle);
-}
-
-/*
- * @brief Calculates electrical angle from rotor angle
- * @param[in] shaft_angle(radians)
- * @param[in] pole_pairs
- * @return electrical angle
- */
-__STATIC_INLINE float _electricalAngle(float shaft_angle, uint8_t pole_pairs){
-  return (shaft_angle * pole_pairs);
-}
-
-/*
- * @brief Normalize angle to [0, 2pi]
- * @param[in] angle(radians)
- * @return normalized_angle
- */
-__STATIC_INLINE float _normalizeAngle(float angle){
-  float a = fmod(angle, _2PI);       // fmod(x,y) returns remainder of x/y
-  return a >= 0 ? a : (a + _2PI);    // add 2pi to negative angles to make positive
-}

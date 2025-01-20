@@ -51,26 +51,47 @@ static void SetPhaseVoltage(Motor* motor) {
 }
 
 /*
- * @brief Initializes motor with pole pair count & supply voltage.
- * @params[in] Motor* motor
- * @params[in] uint8_t pole_pairs
- * @params[in] float supply_voltage
- * @note Motor voltage limit defaults to supply voltage / 2.
+ * @brief Starts PWM channels 1, 2, 3 of specified timer.
+ * @param[in] TIM_HandleTypeDef timer
  */
-void MotorInit(Motor* motor, TIM_HandleTypeDef timer, uint8_t pole_pairs, float supply_voltage)
+void PWM_Start_3_Channel(TIM_HandleTypeDef* timer)
 {
-	/* Set pole pairs & supply voltage */
-	motor->params->pole_pairs = pole_pairs;
-	motor->params->supply_voltage = supply_voltage;
-	motor->params->motor_voltage_limit = supply_voltage / 2;
-	motor->timer = timer;
-
-	if(motor->sensor != NULL)
-	{
-		motor->sensor = NULL;
-	}
+	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_3);
 }
 
+/*
+ * @brief Initializes motor object.
+ *        Creates all relevant structs and returns main motor struct.
+ *
+ * @param[in] TIM_HandleTypeDef* timer
+ * @param[in] float supply_voltage
+ * @param[in] uint8_t pole_pairs
+ *
+ * @note
+ * - Sensor pointer is NULL by default (no sensor)
+ * - Motor voltage limit set to supply voltage / 2 by default
+ *
+ * @retval Motor motor
+ */
+Motor MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pairs)
+{
+	/* Create structs */
+	static FOCparams motor_params;
+	motor_params.supply_voltage = supply_voltage;
+	motor_params.motor_voltage_limit = supply_voltage / 2;
+	motor_params.pole_pairs = pole_pairs;
+	motor_params.electric_angle = 0;
+	motor_params.prev_us = 0;
+	motor_params.zero_angle = 0;
+	motor_params.shaft_angle = 0;
+	static DQvalues motor_dq = {0, 0};
+	static PhaseVoltages motor_pv = {0, 0, 0};
+	Motor motor = {&motor_params, &motor_dq, &motor_pv, NULL, timer};
+
+	return motor;
+}
 /*
  * @brief Links a AS5600 sensor to a motor object
  * @param[in] Motor* motor
@@ -84,6 +105,7 @@ void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle)
 	/* Check if sensor link successful */
 	if(init_stat != 0)
 	{
+		motor->sensor = NULL;
 		return;
 	}
 
@@ -107,6 +129,12 @@ void DebugSensor(Motor* motor)
  */
 void OLVelocityControl(Motor* motor, float target_velocity)
 {
+	/* Check if motor timer initialized properly */
+	if(motor->timer == NULL)
+	{
+		return;
+	}
+
 	/* Track current micros */
 	uint32_t now_us = micros();
 

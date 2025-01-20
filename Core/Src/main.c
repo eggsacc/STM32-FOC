@@ -25,6 +25,7 @@
 #include "usbd_cdc_if.h"
 #include "foc.h"
 #include "AS5600.h"
+#include "timer_utils.h"
 #include <strings.h>
 /* USER CODE END Includes */
 
@@ -106,11 +107,11 @@ int main(void)
   MX_TIM3_Init();
 
   /* USER CODE BEGIN 2 */
-
-  PWMstart(&htim1);
-  MotorSetup(m1);
-  MotorInit(&m1, &htim1, 14, 12);
-  AttachSensor(&m1, &hi2c1);
+  DWT_Init();
+  PWM_Start_3_Channel(&htim1);
+  Motor m1 = MotorInit(&htim1, 12, 14);
+  AS5600 sensor1;
+  LinkSensor(&m1, &sensor1, &hi2c1);
 
   uint8_t usb_tx_buffer[32];
 
@@ -124,9 +125,9 @@ int main(void)
 	  OLVelocityControl(&m1, 3);
 	  /* Output phase voltages to USB serial bus (for debugging) */
 	  sprintf(usb_tx_buffer, "phaseA: %d, phaseB: %d, phaseC: %d\n",
-	  			  m1->phaseVs->Ua * 100,
-	  			  m1->phaseVs->Ub * 100,
-	  			  m1->phaseVs->Uc * 100);
+	  			  m1.phaseVs->Ua * 100,
+	  			  m1.phaseVs->Ub * 100,
+	  			  m1.phaseVs->Uc * 100);
 
 	  CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
 
