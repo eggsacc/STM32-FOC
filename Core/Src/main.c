@@ -68,7 +68,10 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/* USB receive buffer */
 uint8_t usb_rx_buffer[32];
+
 /* USER CODE END 0 */
 
 /**

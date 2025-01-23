@@ -23,6 +23,9 @@ Continue: attach sensor macro
 - Removed macros to set up motor structs; replaced with a function using static structs.
 - Motor & sensor object has to be manually created now, in main().
 
+23/1/25:
+- Updates naming of stucts to end with _t
+
 ################################## BUGFIX & THINGS LEARNT ##################################
 20/1/25: 
 - Remember to change header file funcion definitions after updating source file.
