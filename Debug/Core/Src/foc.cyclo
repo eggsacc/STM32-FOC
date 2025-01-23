@@ -1,10 +1,10 @@
 ../Core/Inc/foc_utils.h:49:23:_cos	2
 ../Core/Inc/foc_utils.h:60:23:_normalizeAngle	2
 ../Core/Inc/timer_utils.h:34:26:micros	1
-../Core/Src/foc.c:24:13:SetPWM	7
+../Core/Src/foc.c:24:22:SetPWM	7
 ../Core/Src/foc.c:36:13:SetPhaseVoltage	1
 ../Core/Src/foc.c:57:6:PWM_Start_3_Channel	1
-../Core/Src/foc.c:78:7:MotorInit	1
+../Core/Src/foc.c:78:9:MotorInit	1
 ../Core/Src/foc.c:101:6:LinkSensor	2
 ../Core/Src/foc.c:119:6:DebugSensor	1
 ../Core/Src/foc.c:130:6:OLVelocityControl	3

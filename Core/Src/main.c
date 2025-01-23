@@ -107,13 +107,20 @@ int main(void)
   MX_TIM3_Init();
 
   /* USER CODE BEGIN 2 */
+
+  /* Init timer (timer_utils.h) */
   DWT_Init();
+
+  /* Start pwm timer channels */
   PWM_Start_3_Channel(&htim1);
-  Motor m1 = MotorInit(&htim1, 12, 14);
+
+  /* Motor, sensor objects creation & initialization */
+  Motor_t m1 = MotorInit(&htim1, 12, 14);
   AS5600 sensor1;
   LinkSensor(&m1, &sensor1, &hi2c1);
 
-  uint8_t usb_tx_buffer[32];
+  /* USB output buffer */
+  uint8_t usb_tx_buffer[64];
 
   /* USER CODE END 2 */
 
@@ -125,9 +132,9 @@ int main(void)
 	  OLVelocityControl(&m1, 3);
 	  /* Output phase voltages to USB serial bus (for debugging) */
 	  sprintf(usb_tx_buffer, "phaseA: %d, phaseB: %d, phaseC: %d\n",
-	  			  m1.phaseVs->Ua * 100,
-	  			  m1.phaseVs->Ub * 100,
-	  			  m1.phaseVs->Uc * 100);
+	  			  (int)m1.phaseVs->Ua * 100,
+	  			  (int)m1.phaseVs->Ub * 100,
+	  			  (int)m1.phaseVs->Uc * 100);
 
 	  CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
 

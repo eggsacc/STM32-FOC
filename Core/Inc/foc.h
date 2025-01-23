@@ -19,67 +19,62 @@
 #include "timer_utils.h"
 
 /*
- * @brief PWM Timer starter macro.
- *        Starts the timer for channels 1-3.
- */
-void PWMstart(TIM_HandleTypeDef* timer);
-
-/*
  * Typedef structures
  *
  * The library works by allocating (static) memory to each struct, then passing the struct pointers
  * around to update / use the stored values.
  *
- * The Motor structure contains pointers to all 3 other structures: FOCparams, QDvalues, and PhaseVoltages.
- * Also includes pointers to the sensor struct and timer typedef struct.
+ * The Motor structure contains motor parameters and pointers to all 3 other structures: Var_t, QDval_t, and PhaseV_t.
+ * Also includes pointers to the sensor struct and timer handle struct.
  */
 typedef struct
 {
 	float supply_voltage;
-	float motor_voltage_limit;
 	float zero_angle;
 	float shaft_angle;
 	float electric_angle;
 	uint32_t prev_us;
-	uint8_t pole_pairs;
-} FOCparams;
+} Var_t;
 
 typedef struct
 {
 	float Uq;
 	float Ud;
-} DQvalues;
+} DQval_t;
 
 typedef struct
 {
 	float Ua;
 	float Ub;
 	float Uc;
-} PhaseVoltages;
+} PhaseV_t;
 
 typedef struct
 {
-	FOCparams* params;
-	DQvalues* dqVals;
-	PhaseVoltages* phaseVs;
+	uint8_t pole_pairs;
+	uint16_t kv;
+	float motor_v_limit;
+
+	Var_t* vars;
+	DQval_t* dqVals;
+	PhaseV_t* phaseVs;
 	AS5600* sensor;
 	TIM_HandleTypeDef* timer;
-} Motor;
+} Motor_t;
 
 /*
  * Public functions
  */
-Motor MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pairs);
+// void DebugSensor(Motor_t* motor);
+void PWM_Start_3_Channel(TIM_HandleTypeDef* timer);
 
-void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle);
-void DebugSensor(Motor* motor);
-
-
+Motor_t MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pairs);
+void LinkSensor(Motor_t* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle);
 
 /*
  * Control functions
  */
-void OLVelocityControl(Motor* motor, float target_velocity);
+void OLVelocityControl(Motor_t* motor, float target_velocity);
 
 
 #endif /* INC_FOC_H_ */
