@@ -78,21 +78,9 @@ uint8_t AS5600_Init(AS5600 *dev, I2C_HandleTypeDef *i2c_handle, uint8_t zero)
 /*
  * Read sensor value
  */
-HAL_StatusTypeDef AS5600_ReadAngle(AS5600 *dev)
+float AS5600_ReadAngle(AS5600 *dev)
 {
-	uint8_t regdata[2] = {0, 0};
-	HAL_StatusTypeDef status = AS5600_ReadRegisters(dev, RAW_ANGLE_MSB_REG, regdata, 2);
-
-	/* Return early if register read fails */
-	if(status != HAL_OK)
-	{
-		return status;
-	}
-
-	/* Mask & shift 4 MSB left by 8 and concatenate with 8 LSBs */
-	uint16_t raw_angle = (((regdata[0] & 0x0F) << 8) | regdata[1]);
-
-	int16_t delta = raw_angle - dev->prev_raw_angle;
+	int16_t delta = AS5600_ReadRawAngle(dev) - dev->prev_raw_angle;
 
 	/*
 	 * Positive large delta -> negative overflow
@@ -113,7 +101,23 @@ HAL_StatusTypeDef AS5600_ReadAngle(AS5600 *dev)
 
 	dev->prev_raw_angle = raw_angle;
 
-	return status;
+	return dev->total_angle_rad;
+}
+
+uint16_t AS5600_ReadRawAngle(AS5600 *dev)
+{
+	uint8_t regdata[2] = {0, 0};
+	HAL_StatusTypeDef status = AS5600_ReadRegisters(dev, RAW_ANGLE_MSB_REG, regdata, 2);
+
+	/* Return early if register read fails */
+	if(status != HAL_OK)
+	{
+		return 0;;
+	}
+
+	/* Mask & shift 4 MSB left by 8 and concatenate with 8 LSBs */
+	uint16_t raw_angle = (((regdata[0] & 0x0F) << 8) | regdata[1]);
+	return raw_angle;
 }
 
 

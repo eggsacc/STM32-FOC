@@ -30,6 +30,8 @@
 #define _3PI_2 4.71238898038f
 #define _PI_6 0.52359877559f
 #define _RPM_TO_RADS 0.10471975512f
+#define RAD_TO_DEG 57.2957795131
+#define DEG_TO_RAD 0.01745329251
 
 /*
  * Constrain macro

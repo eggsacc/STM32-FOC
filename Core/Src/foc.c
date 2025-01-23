@@ -150,3 +150,15 @@ void OLVelocityControl(Motor_t* motor, float target_velocity)
 	/* Update timestamp */
 	motor->vars->prev_us = micros();
 }
+
+void CLPositionControl(Motor_t* motor, float target_pos)
+{
+	/* Check if sensor is attached to motor */
+	if(motor->sensor == NULL)
+	{
+		return;
+	}
+
+
+	return;
+}

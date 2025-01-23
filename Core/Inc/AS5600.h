@@ -57,6 +57,12 @@ uint8_t AS5600_Init(AS5600 *dev, I2C_HandleTypeDef *i2c_handle, uint8_t zero);
 /*
  * Read sensor value
  */
-HAL_StatusTypeDef AS5600_ReadAngle(AS5600 *dev);
+float AS5600_ReadAngle(AS5600 *dev);
+uint16_t AS5600_ReadRawAngle(AS5600 *dev);
+
+__STATIC_INLINE float AS5600_ReadNormalizedAngle(AS5600 *dev)
+{
+	return AS5600_ReadRawAngle() * BIT_TO_RAD;
+}
 
 #endif /* INC_AS5600_H_ */

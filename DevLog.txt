@@ -15,8 +15,6 @@
    - BUGFIX: motor->TIM_HandleTypeDef->Instance->CCR1 dosnt work. Must be TIM_HandleTypeDef.Instance->CCR1
    
 
-Continue: attach sensor macro
-
 
 ################################## UPDATES ##################################
 20/1/25:
@@ -25,6 +23,8 @@ Continue: attach sensor macro
 
 23/1/25:
 - Updates naming of stucts to end with _t
+- Added ReadRawAngle & ReadNormalizedAngle to AS5600.h
+- Started on close loop position control function
 
 ################################## BUGFIX & THINGS LEARNT ##################################
 20/1/25: 
