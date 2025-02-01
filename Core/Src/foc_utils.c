@@ -28,7 +28,7 @@ uint16_t sineLUT[] = {0, 804, 1607, 2410, 3211, 4011, 4808, 5602, 6392, 7179, 79
 float _sin(float angle){
 
   int32_t first, second;
-  uint16_t index = (uint16_t)angle / _2PI * 65536.0f;
+  uint16_t index = (uint16_t)(angle / _2PI * 65536.0f);
   int frac = index & 0xff;
   index = (index >> 8) & 0xff;
 

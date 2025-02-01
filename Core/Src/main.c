@@ -108,7 +108,6 @@ int main(void)
   MX_I2C2_Init();
   MX_USB_DEVICE_Init();
   MX_TIM3_Init();
-
   /* USER CODE BEGIN 2 */
 
   /* Init timer (timer_utils.h) */
@@ -118,7 +117,7 @@ int main(void)
   PWM_Start_3_Channel(&htim1);
 
   /* Motor, sensor objects creation & initialization */
-  Motor_t m1 = MotorInit(&htim1, 12, 14);
+  Motor m1 = MotorInit(&htim1, 12, 7);
   AS5600 sensor1;
   LinkSensor(&m1, &sensor1, &hi2c1);
 
@@ -132,14 +131,17 @@ int main(void)
   while (1)
   {
 	  /* Set open loop velocity */
-	  OLVelocityControl(&m1, 3);
+	  OLVelocityControl(&m1, 10);
 	  /* Output phase voltages to USB serial bus (for debugging) */
-	  sprintf(usb_tx_buffer, "phaseA: %d, phaseB: %d, phaseC: %d\n",
-	  			  (int)m1.phaseVs->Ua * 100,
-	  			  (int)m1.phaseVs->Ub * 100,
-	  			  (int)m1.phaseVs->Uc * 100);
+	  sprintf(usb_tx_buffer, ">CCR1:%d,CCR2:%d,CCR3:%d\r\n",
+	  			  m1.timer->Instance->CCR1,
+				  m1.timer->Instance->CCR2,
+				  m1.timer->Instance->CCR3);
 
 	  CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+//	  sprintf(usb_tx_buffer, "%d\n", micros());
+//	  CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+//	  HAL_Delay(10);
 
     /* USER CODE END WHILE */
 
@@ -285,7 +287,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 1023;
+  htim1.Init.Period = 255;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -367,7 +369,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 1023;
+  htim3.Init.Period = 255;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)

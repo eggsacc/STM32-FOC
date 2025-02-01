@@ -62,7 +62,7 @@ uint16_t AS5600_ReadRawAngle(AS5600 *dev);
 
 __STATIC_INLINE float AS5600_ReadNormalizedAngle(AS5600 *dev)
 {
-	return AS5600_ReadRawAngle() * BIT_TO_RAD;
+	return AS5600_ReadRawAngle(dev) * BIT_TO_RAD;
 }
 
 #endif /* INC_AS5600_H_ */

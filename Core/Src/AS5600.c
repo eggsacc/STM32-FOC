@@ -80,7 +80,8 @@ uint8_t AS5600_Init(AS5600 *dev, I2C_HandleTypeDef *i2c_handle, uint8_t zero)
  */
 float AS5600_ReadAngle(AS5600 *dev)
 {
-	int16_t delta = AS5600_ReadRawAngle(dev) - dev->prev_raw_angle;
+	int16_t raw_angle = AS5600_ReadRawAngle(dev);
+	int16_t delta = raw_angle - dev->prev_raw_angle;
 
 	/*
 	 * Positive large delta -> negative overflow

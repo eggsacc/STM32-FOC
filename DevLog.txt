@@ -18,7 +18,7 @@
 
 ################################## UPDATES ##################################
 20/1/25:
-- Removed macros to set up motor structs; replaced with a function using static structs.
+- Removed macros to set up motor structs; replaced with a function creating static structs on the stack.
 - Motor & sensor object has to be manually created now, in main().
 
 23/1/25:
@@ -26,7 +26,19 @@
 - Added ReadRawAngle & ReadNormalizedAngle to AS5600.h
 - Started on close loop position control function
 
+25/1/25
+- Renamed motor struct back to Motor (instead of Motor_t)
+- Renamed SetPhaseVoltages to SetTorque
+- Finished close loop position control function, yet to test
+
+1/2/25
+- PWM problem? Motor jiterry motion, and changing PWM duty cycle seems to have a pretty significant effect.
+- Lower PWM frequency by setting prescalar.
+
 ################################## BUGFIX & THINGS LEARNT ##################################
+24/1/25:
+- Sine approximation function in timer_utils.c does not work as intended -- small angles always yield "0" as the output. Caused by type-casting error
+
 20/1/25: 
 - Remember to change header file funcion definitions after updating source file.
 

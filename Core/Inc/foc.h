@@ -19,6 +19,12 @@
 #include "timer_utils.h"
 
 /*
+ * Constants
+ */
+#define DIR 1
+#define KP 7.639437268
+
+/*
  * Typedef structures
  *
  * The library works by allocating (static) memory to each struct, then passing the struct pointers
@@ -29,7 +35,6 @@
  */
 typedef struct
 {
-	float supply_voltage;
 	float zero_angle;
 	float shaft_angle;
 	float electric_angle;
@@ -54,27 +59,29 @@ typedef struct
 	uint8_t pole_pairs;
 	uint16_t kv;
 	float motor_v_limit;
+	float supply_voltage;
 
 	Var_t* vars;
 	DQval_t* dqVals;
 	PhaseV_t* phaseVs;
 	AS5600* sensor;
 	TIM_HandleTypeDef* timer;
-} Motor_t;
+} Motor;
 
 /*
  * Public functions
  */
 // void DebugSensor(Motor_t* motor);
 void PWM_Start_3_Channel(TIM_HandleTypeDef* timer);
-
-Motor_t MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pairs);
-void LinkSensor(Motor_t* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle);
+Motor MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pairs);
+void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle);
 
 /*
  * Control functions
  */
-void OLVelocityControl(Motor_t* motor, float target_velocity);
+void SetTorque(Motor* motor);
+void OLVelocityControl(Motor* motor, float target_velocity);
+void CLPositionControl(Motor* motor, float target_pos);
 
 
 #endif /* INC_FOC_H_ */
