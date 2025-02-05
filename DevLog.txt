@@ -14,7 +14,10 @@
    - NOTE: When accessing a member directly from a struct variable, use the dot (.) operator. Only use arrow (->) when accessing from struct pointer.
    - BUGFIX: motor->TIM_HandleTypeDef->Instance->CCR1 dosnt work. Must be TIM_HandleTypeDef.Instance->CCR1
    
+################################## TO:DO ####################################
 
+1) Learn interrupts, attach interrupt to serial rx callback.
+2) Implement serial commander function.
 
 ################################## UPDATES ##################################
 20/1/25:
@@ -35,7 +38,13 @@
 - PWM problem? Motor jiterry motion, and changing PWM duty cycle seems to have a pretty significant effect.
 - Lower PWM frequency by setting prescalar.
 
+5/2/25
+- New PWM freq: 72Mhz / 256 / 8 = 35kHz (approx)
+
 ################################## BUGFIX & THINGS LEARNT ##################################
+5/2/25:
+- Finally found the problem!!! Apparently PWM frequency & resolution is quite significant. Changed the ARR to 256 (8-bit PWM) and prescalar to 8
+
 24/1/25:
 - Sine approximation function in timer_utils.c does not work as intended -- small angles always yield "0" as the output. Caused by type-casting error
 
