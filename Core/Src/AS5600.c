@@ -30,10 +30,19 @@ static HAL_StatusTypeDef AS5600_ReadRegisters(AS5600 *dev, uint8_t reg, uint8_t 
  */
 
 /*
+ * @brief Zeroes the sensor value.
+ * @param[in] AS5600* sensor
+ */
+void AS5600_ZeroAngle(AS5600* dev)
+{
+	dev->total_angle_rad = 0;
+}
+
+/*
  * Initialization
  * Pass the struct to each function as pointer
  */
-uint8_t AS5600_Init(AS5600 *dev, I2C_HandleTypeDef *i2c_handle, uint8_t zero)
+uint8_t AS5600_Init(AS5600* dev, I2C_HandleTypeDef* i2c_handle, uint8_t zero)
 {
 	/* Set struct params */
 	dev->i2cHandle = i2c_handle;

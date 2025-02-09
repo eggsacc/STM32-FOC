@@ -119,7 +119,9 @@ int main(void)
   /* Motor, sensor objects creation & initialization */
   Motor m1 = MotorInit(&htim1, 12, 7);
   AS5600 sensor1;
-  LinkSensor(&m1, &sensor1, &hi2c1);
+  AS5600_Init(&sensor1, &hi2c1, 1);
+  m1.sensor = &sensor1;
+  //LinkSensor(&m1, &sensor1, &hi2c1);
 
   /* USB output buffer */
   uint8_t usb_tx_buffer[64];
@@ -131,14 +133,15 @@ int main(void)
   while (1)
   {
 	  /* Set open loop velocity */
-	  OLVelocityControl(&m1, 10);
-	  /* Output phase voltages to USB serial bus (for debugging) */
-	  sprintf(usb_tx_buffer, ">CCR1:%d,CCR2:%d,CCR3:%d\r\n",
-	  			  m1.timer->Instance->CCR1,
-				  m1.timer->Instance->CCR2,
-				  m1.timer->Instance->CCR3);
-
+	  // OLVelocityControl(&m1, 10);
+	  //LinkSensor(&m1, &sensor1, &hi2c1);
+	  //BLDC_AutoCalibrate(&m1);
+	  sprintf(usb_tx_buffer, "%d\n", (int)(AS5600_ReadAngle(&sensor1)*1000));
 	  CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+
+	  /* Output phase voltages to USB serial bus (for debugging) */
+	  //MotorDebug(&m1);
+	  HAL_Delay(30);
 //	  sprintf(usb_tx_buffer, "%d\n", micros());
 //	  CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
 //	  HAL_Delay(10);

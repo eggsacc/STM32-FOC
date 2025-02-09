@@ -9,12 +9,30 @@
  * Includes
  */
 #include <stm32f1xx_hal.h>
+#include "usb_device.h"
+#include "usbd_cdc_if.h"
 #include "stm32f1xx_hal_tim.h"
 #include "stm32f103xb.h"
 #include "foc_utils.h"
 #include "foc.h"
 #include "AS5600.h"
 #include "timer_utils.h"
+
+/*
+ * Extern variable
+ */
+static uint8_t usb_tx_buffer[64];
+
+/*
+ * @brief Starts PWM channels 1, 2, 3 of specified timer.
+ * @param[in] TIM_HandleTypeDef timer
+ */
+void PWM_Start_3_Channel(TIM_HandleTypeDef* timer)
+{
+	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_3);
+}
 
 /*
  * @scope static inline
@@ -26,40 +44,6 @@ __STATIC_INLINE void SetPWM(Motor* motor)
 	motor->timer->Instance->CCR1 = _constrain(motor->phaseVs->Ua / motor->supply_voltage, 0.0f, 1.0f) * 256;
 	motor->timer->Instance->CCR2 = _constrain(motor->phaseVs->Ub / motor->supply_voltage, 0.0f, 1.0f) * 256;
 	motor->timer->Instance->CCR3 = _constrain(motor->phaseVs->Uc / motor->supply_voltage, 0.0f, 1.0f) * 256;
-}
-
-/*
- * @brief Inverse Clarke & Park transformations to calculate phase voltages
- * @param[in] Motor* motor
- * @note Calls setpwm()
- */
-void SetTorque(Motor* motor) {
-	/* Constrain Uq to within voltage range */
-	motor->dqVals->Uq = _constrain(motor->dqVals->Uq, -motor->motor_v_limit, motor->motor_v_limit);
-    /* Normalize electric angle */
-    float el_angle = _normalizeAngle(motor->vars->electric_angle);
-
-	/* Inverse park transform */
-	float Ualpha = -(motor->dqVals->Uq) * _sin(el_angle);
-	float Ubeta = motor->dqVals->Uq * _cos(el_angle);
-
-	/* Inverse Clarke transform */
-	motor->phaseVs->Ua = Ualpha + motor->supply_voltage / 2.0f;
-	motor->phaseVs->Ub = (_SQRT3 * Ubeta - Ualpha) / 2.0f + motor->supply_voltage / 2.0f;
-	motor->phaseVs->Uc = (- Ualpha - _SQRT3 * Ubeta) / 2.0f + motor->supply_voltage / 2.0f;
-
-	SetPWM(motor);
-}
-
-/*
- * @brief Starts PWM channels 1, 2, 3 of specified timer.
- * @param[in] TIM_HandleTypeDef timer
- */
-void PWM_Start_3_Channel(TIM_HandleTypeDef* timer)
-{
-	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(timer, TIM_CHANNEL_3);
 }
 
 /*
@@ -88,10 +72,34 @@ Motor MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pai
 	static DQval_t motor_dq = {0, 0};
 	static PhaseV_t motor_pv = {0, 0, 0};
 
-	Motor motor = {pole_pairs, 0, supply_voltage / 2, supply_voltage, &motor_vars, &motor_dq, &motor_pv, NULL, timer};
+	Motor motor = {0, pole_pairs, supply_voltage / 2, supply_voltage, &motor_vars, &motor_dq, &motor_pv, NULL, timer};
 
 	return motor;
 }
+
+/*
+ * @brief Inverse Clarke & Park transformations to calculate phase voltages
+ * @param[in] Motor* motor
+ * @note Calls setpwm()
+ */
+void SetTorque(Motor* motor) {
+	/* Constrain Uq to within voltage range */
+	motor->dqVals->Uq = _constrain(motor->dqVals->Uq, -motor->motor_v_limit, motor->motor_v_limit);
+    /* Normalize electric angle */
+    float el_angle = _normalizeAngle(motor->vars->electric_angle);
+
+	/* Inverse park transform */
+	float Ualpha = -(motor->dqVals->Uq) * _sin(el_angle);
+	float Ubeta = motor->dqVals->Uq * _cos(el_angle);
+
+	/* Inverse Clarke transform */
+	motor->phaseVs->Ua = Ualpha + motor->supply_voltage / 2.0f;
+	motor->phaseVs->Ub = (_SQRT3 * Ubeta - Ualpha) / 2.0f + motor->supply_voltage / 2.0f;
+	motor->phaseVs->Uc = (- Ualpha - _SQRT3 * Ubeta) / 2.0f + motor->supply_voltage / 2.0f;
+
+	SetPWM(motor);
+}
+
 /*
  * @brief Links a AS5600 sensor to a motor object
  * @param[in] Motor* motor
@@ -100,14 +108,21 @@ Motor MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pai
  */
 void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle)
 {
+	sprintf(usb_tx_buffer, "Linking sensor\n");
+	CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+
 	uint8_t init_stat = AS5600_Init(sensor, i2c_handle, 1);
 
 	/* Check if sensor link successful */
 	if(init_stat != 0)
 	{
+		sprintf(usb_tx_buffer, "Link sensor fail! Init stat: %d\n", init_stat);
+		CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
 		motor->sensor = NULL;
 		return;
 	}
+	sprintf(usb_tx_buffer, "Sensor add: %p\n", sensor);
+	CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
 
 	motor->sensor = sensor;
 }
@@ -116,9 +131,57 @@ void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle)
  * @brief Sends sensor readings through USB. For debugging sensors.
  * @param[in] Motor* motor
  */
-void DebugSensor(Motor* motor)
+void BLDC_AutoCalibrate(Motor* motor)
 {
-	return;
+	/* Check if encoder & timer attached */
+	if(motor->sensor == NULL || motor->timer == NULL)
+	{
+		sprintf(usb_tx_buffer, "Auto calibration fail!\n");
+		CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+		return;
+	}
+
+	motor->dqVals->Uq = 3;
+	motor->vars->electric_angle = _3PI_2;
+	SetTorque(motor);
+
+	HAL_Delay(1000);
+	AS5600_ZeroAngle(motor->sensor);
+	float angle_a = AS5600_ReadAngle(motor->sensor);
+	sprintf(usb_tx_buffer, "Angle alpha: %d\n", (int)(angle_a * 1000));
+	CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+
+	motor->vars->electric_angle = 0;
+	SetTorque(motor);
+	HAL_Delay(2000);
+	float angle_b = AS5600_ReadAngle(motor->sensor);
+	sprintf(usb_tx_buffer, "Angle alpha: %d\n", (int)(angle_b * 1000));
+	CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+
+	float delta = angle_b - angle_a;
+	sprintf(usb_tx_buffer, "Delta: %d\n", (int)(delta * 1000));
+	CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
+	motor->sensor_dir = delta < 0 ? 0 : -1;
+
+	motor->pole_pairs = (int)(_3PI_2 / delta);
+
+	AS5600_ZeroAngle(motor->sensor);
+	motor->dqVals->Uq = 0;
+	SetTorque(motor);
+}
+
+/*
+ * @brief Debug motor parameters
+ * @params[in] Motor* motor
+ */
+void MotorDebug(Motor* motor)
+{
+	sprintf(usb_tx_buffer, "Sensor dir: %d,\nPole pairs: %d,\nSensor: %p,\nTimer: %p\n",
+							motor->sensor_dir,
+							motor->pole_pairs,
+							motor->sensor,
+							motor->timer);
+	CDC_Transmit_FS(usb_tx_buffer, strlen((const char*)usb_tx_buffer));
 }
 
 /*

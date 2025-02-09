@@ -56,8 +56,8 @@ typedef struct
 
 typedef struct
 {
+	int8_t sensor_dir;
 	uint8_t pole_pairs;
-	uint16_t kv;
 	float motor_v_limit;
 	float supply_voltage;
 
@@ -75,6 +75,8 @@ typedef struct
 void PWM_Start_3_Channel(TIM_HandleTypeDef* timer);
 Motor MotorInit(TIM_HandleTypeDef* timer, float supply_voltage, uint8_t pole_pairs);
 void LinkSensor(Motor* motor, AS5600* sensor, I2C_HandleTypeDef *i2c_handle);
+void BLDC_AutoCalibrate(Motor* motor);
+void MotorDebug(Motor* motor);
 
 /*
  * Control functions

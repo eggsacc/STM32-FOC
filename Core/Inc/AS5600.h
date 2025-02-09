@@ -53,6 +53,8 @@ typedef struct{
  * Pass the struct to each function as pointer
  */
 uint8_t AS5600_Init(AS5600 *dev, I2C_HandleTypeDef *i2c_handle, uint8_t zero);
+void AS5600_ZeroAngle(AS5600* dev);
+
 
 /*
  * Read sensor value
